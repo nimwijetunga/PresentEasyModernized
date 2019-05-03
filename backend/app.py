@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
-import util
+import util, image_handler
+from util import authenticate_request
 
 
 app = Flask(__name__)
@@ -15,6 +16,13 @@ import models
 @app.route('/')
 def main():
     return "Welcome to Present Easy"
+
+
+@app.route('/images')
+@authenticate_request
+def get_images(user_id):
+	image_id = image_handler.create_image_and_add_to_cache('test_url', 100, 200.12)
+	return jsonify({'status': 'Success', 'image_id': image_id})
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -35,7 +43,7 @@ def signup():
 		user = models.User(user_id=user_id, password=password, email=email)
 		db.session.add(user)
 		db.session.commit()
-		return jsonify({'status': 'Success', 'token': auth_token})
+		return util.get_response_with_cookie({'status': 'Success', 'token': auth_token}, 'auth_token', auth_token)
 	except Exception as e:
 		db.session.rollback()
 		print(e)
@@ -57,7 +65,7 @@ def login():
 		if not util.is_valid_password(password, user.password):
 			return jsonify({'status': 'Failed', 'token': None, 'msg': 'Invalid Password'}), 400
 		auth_token = util.encode_auth_token(user_id)
-		return jsonify({'status': 'Success', 'token': auth_token})
+		return util.get_response_with_cookie({'status': 'Success', 'token': auth_token}, 'auth_token', auth_token)
 	except Exception as e:
 		print(e)
 		return jsonfiy({'status': 'Failed', 'token':None}), 500
