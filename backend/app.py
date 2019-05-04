@@ -21,8 +21,27 @@ def main():
 @app.route('/images')
 @authenticate_request
 def get_images(user_id):
-	image_id = image_handler.create_image_and_add_to_cache('test_url', 100, 200.12)
+	image_id = image_handler.create_image_and_add_to_cache('test_url', 100, 300)
 	return jsonify({'status': 'Success', 'image_id': image_id})
+
+@app.route('/add/images', methods=['POST'])
+@authenticate_request
+def add_images(user_id):
+	body = request.get_json() or {}
+	# should be a list of image uuids
+	image_uuids = body.get('images')
+	if not image_uuids or not isinstance(image_uuids, list):
+		return jsonify({'status': 'Failed'}), 400
+	user = db.session.query(models.User).filter_by(user_id=user_id).first()
+	db.session.expunge(user)
+	if not user:
+		return jsonify({'status': 'Failed', 'msg': 'User Not Found'}), 400
+	try:
+		image_handler.fetch_images_from_redis_add_to_db(user, image_uuids)
+		return jsonify({'status': 'Success', 'msg': 'Saved!'})
+	except Exception as e:
+		print(e)
+		return jsonify({'status': 'Failed'}), 500
 
 @app.route('/signup', methods=['POST'])
 def signup():

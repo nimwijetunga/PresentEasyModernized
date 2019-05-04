@@ -1,12 +1,9 @@
 from app import db
-from sqlalchemy.dialects.postgresql import JSON
-import redis
+from sqlalchemy.dialects.postgresql import JSON, ARRAY
 import os
 import simplejson as json
 import uuid
-
-_IMAGES_REDIS_DB_NUM = 0
-images_redis = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=_IMAGES_REDIS_DB_NUM)
+import image_handler
 
 class Image(db.Model):
     __tablename__ = 'images'
@@ -30,8 +27,8 @@ class Image(db.Model):
     		'width': self.width,
     		'height': self.height
     	}
-    	images_redis.set(key, json.dumps(image_info))
-    	images_redis.expire(key, 60*60) # expire after an hour
+    	image_handler.images_redis.set(key, json.dumps(image_info))
+    	image_handler.images_redis.expire(key, 60*60) # expire after an hour
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -42,6 +39,7 @@ class User(db.Model):
 	user_id = db.Column(db.String(), primary_key=True)
 	password = db.Column(db.String(), nullable=False)
 	email = db.Column(db.String())
+	images = db.Column(ARRAY(db.Integer), default=[])
 
 	def __init__(self, user_id, password, email):
 		self.user_id = user_id
