@@ -90,4 +90,5 @@ def login():
 		return jsonfiy({'status': 'Failed', 'token':None}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+	print('Starting App!')
+	app.run(host='0.0.0.0', port=5000)
