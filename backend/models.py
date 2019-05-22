@@ -13,15 +13,20 @@ class Image(db.Model):
     width = db.Column(db.Float)
     height = db.Column(db.Float)
     uuid = db.Column(db.String())
+    # Represents the sentiment score associated with an image
+    score = db.Column(db.Integer)
 
-    def __init__(self, url, width, height):
+
+    def __init__(self, url, width, height, score):
         self.url = url
         self.width = width
         self.height = height
         self.uuid = str(uuid.uuid4())
+        self.score = score
 
     def add_image_to_cache(self):
     	key = 'image:%s' % self.uuid
+        score_key = 'score:%s' % self.score
     	image_info = {
     		'url': self.url,
     		'width': self.width,
@@ -29,6 +34,8 @@ class Image(db.Model):
     	}
     	image_handler.images_redis.set(key, json.dumps(image_info))
     	image_handler.images_redis.expire(key, 60*60) # expire after an hour
+        # Redis set stores all images with a given score
+        image_handler.images_redis.sadd(score_key, self.uuid)
 
     def __repr__(self):
         return '<id {}>'.format(self.id)

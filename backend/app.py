@@ -4,25 +4,24 @@ import os
 import util
 import image_handler
 from util import authenticate_request
+from flask_restplus import Api, Resource
 
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+api = Api(app=app)
+
+main_app = api.namespace('main', description='Main APIs')
 
 import models
-
-
-@app.route('/')
-def main():
-    return "Welcome to Present Easy"
 
 
 @app.route('/images')
 @authenticate_request
 def get_images(user_id):
-	image_id = image_handler.create_image_and_add_to_cache('test_url', 100, 300)
+	image_id = image_handler.create_image_and_add_to_cache('test_url', 100, 300, 1)
 	return jsonify({'status': 'Success', 'image_id': image_id})
 
 @app.route('/add/images', methods=['POST'])
@@ -44,30 +43,31 @@ def add_images(user_id):
 		print(e)
 		return jsonify({'status': 'Failed'}), 500
 
-@app.route('/signup', methods=['POST'])
-def signup():
-	try:
-		body = request.get_json()
-		if not body:
-			return jsonify({'status': 'Failed', 'token':None}), 400
-		user_id = body.get('username')
-		password = body.get('password')
-		email = body.get('email')
-		if not user_id or not password:
-			return jsonify({'status': 'Failed', 'token': None}), 400
-		user_exists = bool(db.session.query(models.User).filter_by(user_id=user_id).first())
-		if user_exists:
-			return jsonify({'status': 'Failed', 'token': None, 'msg': 'User Alrady Exists'}), 400
-		password = util.encrypt_password(password)
-		auth_token = util.encode_auth_token(user_id)
-		user = models.User(user_id=user_id, password=password, email=email)
-		db.session.add(user)
-		db.session.commit()
-		return util.get_response_with_cookie({'status': 'Success', 'token': auth_token}, 'auth_token', auth_token)
-	except Exception as e:
-		db.session.rollback()
-		print(e)
-		return jsonfiy({'status': 'Failed', 'token':None}), 500
+@main_app.route("/signup")
+class SignUp(Resource):
+	def post():
+		try:
+			body = request.get_json()
+			if not body:
+				return jsonify({'status': 'Failed', 'token':None}), 400
+			user_id = body.get('username')
+			password = body.get('password')
+			email = body.get('email')
+			if not user_id or not password:
+				return jsonify({'status': 'Failed', 'token': None}), 400
+			user_exists = bool(db.session.query(models.User).filter_by(user_id=user_id).first())
+			if user_exists:
+				return jsonify({'status': 'Failed', 'token': None, 'msg': 'User Alrady Exists'}), 400
+			password = util.encrypt_password(password)
+			auth_token = util.encode_auth_token(user_id)
+			user = models.User(user_id=user_id, password=password, email=email)
+			db.session.add(user)
+			db.session.commit()
+			return util.get_response_with_cookie({'status': 'Success', 'token': auth_token}, 'auth_token', auth_token)
+		except Exception as e:
+			db.session.rollback()
+			print(e)
+			return jsonfiy({'status': 'Failed', 'token':None}), 500
 
 @app.route('/login', methods=['POST'])
 def login():

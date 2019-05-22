@@ -7,11 +7,12 @@ import os
 _IMAGES_REDIS_DB_NUM = 0
 images_redis = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=_IMAGES_REDIS_DB_NUM)
 
-def create_image_and_add_to_cache(image_url, width, height):
+def create_image_and_add_to_cache(image_url, width, height, score):
 	image = models.Image(**{
 				'url': image_url,
 				'width': width,
-				'height': height
+				'height': height,
+				'score': score
 			})
 	image.add_image_to_cache()
 	return image.uuid
