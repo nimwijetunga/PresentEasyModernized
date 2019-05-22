@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
-import util, image_handler
+import util
+import image_handler
 from util import authenticate_request
 
 
@@ -91,4 +92,4 @@ def login():
 
 if __name__ == '__main__':
 	print('Starting App!')
-	app.run(host='0.0.0.0', port=5000)
+	app.run(host='0.0.0.0', port=80)
