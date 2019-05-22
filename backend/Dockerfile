@@ -8,3 +8,5 @@ RUN apt-get install -y python-pip python-dev build-essential libssl-dev libffi-d
 RUN pip install --no-cache-dir -r requirements.txt
 ENV FLASK_ENV="docker"
 EXPOSE 5000
+RUN chmod +x entrypoint.sh
+CMD ["entrypoint.sh"]

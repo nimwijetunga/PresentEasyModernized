@@ -19,10 +19,7 @@ spec:
         io.kompose.service: app
     spec:
       containers:
-      - command:
-        - python
-        - app.py
-        env:
+      - env:
         - name: APP_PORT
           value: "3000"
         - name: APP_SETTINGS
@@ -43,7 +40,7 @@ spec:
           value: "6379"
         - name: SECRET_KEY
           value: secret
-        image: webapp:tag
+        image: nimwijetunga/present_easy:latest
         name: app
         ports:
         - containerPort: 5000
@@ -54,6 +51,5 @@ spec:
       restartPolicy: Always
       volumes:
       - name: app-claim0
-        persistentVolumeClaim:
-          claimName: app-claim0
+        emptyDir: {}
 status: {}

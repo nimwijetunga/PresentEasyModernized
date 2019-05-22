@@ -19,7 +19,7 @@ services:
     - POSTGRES_PASSWORD=password
     - POSTGRES_DB=present_easy
   app:
-    image: webapp:tag
+    image: present_easy
     restart: always
     build: .
     environment:
