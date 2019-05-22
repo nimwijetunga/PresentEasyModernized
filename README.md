@@ -15,4 +15,4 @@ Good Ol' Present Easy with a Better Backend Infrastructure
 ## 4. **Dockerized Repo**
  - Postgres, Redis and App images are defined in the docker-compose file
 ## 5. **AWS**
- - Dockerized Application hosted on an EC2 Instance
+ - Dockerized Application hosted on a t2.micro EC2 Instance
