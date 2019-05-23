@@ -30,12 +30,13 @@ class Image(db.Model):
     	image_info = {
     		'url': self.url,
     		'width': self.width,
-    		'height': self.height
+    		'height': self.height,
+            'score': self.score
     	}
     	image_handler.images_redis.set(key, json.dumps(image_info))
     	image_handler.images_redis.expire(key, 60*60) # expire after an hour
         # Redis set stores all images with a given score
-        image_handler.images_redis.sadd(score_key, self.uuid)
+        image_handler.images_redis.lpush(score_key, self.uuid)
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
