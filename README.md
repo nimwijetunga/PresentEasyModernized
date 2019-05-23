@@ -1,7 +1,7 @@
 # PresentEasyModernized
 Good Ol' Present Easy with a Better Backend Infrastructure 
 
-### Deployed here: http://18.222.96.13/ (Docs Comming Soon!)
+### Deployed here: http://3.14.83.90/
 
 # Tech Stack
 ## 1. **Flask Web App**
